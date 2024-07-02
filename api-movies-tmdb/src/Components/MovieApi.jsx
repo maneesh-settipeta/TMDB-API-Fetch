@@ -2,20 +2,31 @@ import { useState } from "react";
 
 function MovieApi() {
   const [resultApiData, setApiData] = useState([]);
-  const fetchNowPlaying = () => {
-    fetch(
+  const fetchNowPlaying = async () => {
+    const fetchData = await fetch(
       "https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1&api_key=5f80bbb3b3d0438a26119d1434df1e75"
-    )
-      .then((response) => response.json())
-      .then((receivedData) => setApiData(receivedData.results));
+    );
+    if (!fetchData.ok) {
+      throw new Error("Network Error was not Ok");
+    }
+
+    const jsonData = await fetchData.json();
+    setApiData(jsonData.results);
   };
+
   const fetchPopular = () => {
     fetch(
       "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1&api_key=5f80bbb3b3d0438a26119d1434df1e75"
     )
-      .then((response) => response.json())
-      .then((receivedData) => setApiData(receivedData.results));
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network Error was not Ok");
+        }
+        return response.json();
+      })
+      .then((responseData) => setApiData(responseData.results));
   };
+
   const fetchTopRated = () => {
     fetch(
       "https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1&api_key=5f80bbb3b3d0438a26119d1434df1e75"
@@ -61,12 +72,12 @@ function MovieApi() {
           upcoming{" "}
         </button>
       </div>
-      <div className="bg-red-500 max-h-full w-screen p-4">
-        <div className="flex flex-wrap justify-center -mx-2">
+      <div className="bg-red-500 h-full w-full ">
+        <div className="flex flex-wrap justify-center ">
           {resultApiData.map((movie) => (
             <div key={movie.id} className="h-96 w-64 p-6">
               <div className="bg-white max-h-fit ">
-                <h1 className="text-gray-900 font-medium text-sm mt-2 p-2 text-start">
+                <h1 className="text-gray-900 font-medium text-sm  p-2 text-start">
                   Title: {movie.title}
                 </h1>
                 <img
